@@ -7,12 +7,15 @@ using static UnityEngine.Vector3;
 public class PlayerControl : Input
 {
     public int _driveSpeed;
+    public int _breakAmount;
     private Vector3 _startPosition;
     private Vector3 _deltaPosition;
     public float _swerveSmoothness;
     public float _swerveSpeed;
     private bool _isLocked;
-
+    
+    public float height;
+    public bool isGrounded = true;
 
     public override void Swerve()
     {
@@ -46,9 +49,12 @@ public class PlayerControl : Input
 
     private void Update()
     {
+        Grounded();
+        if(!isGrounded) return;
         Drive();
         Swerve();
         RotateAround();
+        
     }
 
     private void RotateAround()
@@ -61,12 +67,14 @@ public class PlayerControl : Input
                 if (UnityEngine.Input.GetMouseButton(0))
                 {
                     transform.Rotate(new Vector3(transform.rotation.x, transform.rotation.y + 250, transform.rotation.z) * Time.deltaTime);
+                    _driveSpeed -= _breakAmount;
                 }
 
                 if (UnityEngine.Input.GetMouseButtonUp(0))
                 {
                     _deltaPosition = Vector3.zero;
                     _isLocked = false;
+                    _driveSpeed += _breakAmount;
                 }
             }
         }
@@ -79,14 +87,30 @@ public class PlayerControl : Input
                 if (UnityEngine.Input.GetMouseButton(0))
                 {
                     transform.Rotate(new Vector3(transform.rotation.x, transform.rotation.y - 250, transform.rotation.z) * Time.deltaTime);
+                    _driveSpeed -= _breakAmount;
                 }
 
                 if (UnityEngine.Input.GetMouseButtonUp(0))
                 {
                     _deltaPosition = Vector3.zero;
                     _isLocked = false;
+                    _driveSpeed += _breakAmount;
                 }
             }
+        }
+    }
+    
+    void Grounded()
+    {
+        if (transform.position.y > height)
+        {
+            isGrounded = false;
+        }
+
+        if (!isGrounded && transform.position.y < height)
+        {
+            isGrounded = true;
+            
         }
     }
 }
